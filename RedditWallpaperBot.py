@@ -1,4 +1,4 @@
-import praw,httplib,io,time,ctypes
+import praw,httplib,io,time,ctypes, os.path
 def main():
     path = "D:/redditWallpapers/"
     dateToday = time.localtime()
@@ -24,9 +24,10 @@ def getImgurLink():
     
 def getDatesDownloaded(path):
     logList = []
-    logFile = open(path + "wallpaperLog.txt" , 'r')
-    for line in logFile.readlines():
-        logList.append(line)
+    if(os.path.isfile(path + "wallpaperLog.txt")):
+        logFile = open(path + "wallpaperLog.txt" , 'r')
+        for line in logFile.readlines():
+            logList.append(line)
     return logList
 
 def downloadImage(url , date, path):
@@ -40,7 +41,10 @@ def downloadImage(url , date, path):
     print("Downloaded and added to list")
     
 def updateDateFile(date, path):
-    logFile = open(path + 'wallpaperLog.txt','a')
+    if (os.path.isfile(path + 'wallpaperLog.txt')):
+        logFile = open(path + 'wallpaperLog.txt','a')
+    else:
+        logFile = open(path + 'wallpaperLog.txt', 'w')
     logFile.write(date)
     logFile.close()
 
