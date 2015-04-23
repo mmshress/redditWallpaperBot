@@ -1,10 +1,10 @@
-import praw,httplib,io,time,ctypes, os.path
+import praw,httplib,io,time,ctypes
 def main():
     path = "D:/redditWallpapers/"
     dateToday = time.localtime()
     ddmmyy = time.ctime()[0:11] + time.ctime()[-1:-5:-1][::-1]
     listOfDates = getDatesDownloaded(path)
-    if(not(ddmmyy in listOfDates)):
+    if(not((ddmmyy + "\n") in listOfDates)):
         pictureUrl = getImgurLink()    
         downloadImage(pictureUrl , ddmmyy, path)
         setWallpaperForTheDay(ddmmyy, path)
@@ -24,28 +24,31 @@ def getImgurLink():
     
 def getDatesDownloaded(path):
     logList = []
-    if(os.path.isfile(path + "wallpaperLog.txt")):
-        logFile = open(path + "wallpaperLog.txt" , 'r')
-        for line in logFile.readlines():
-            logList.append(line)
+    logFile = open(path + "wallpaperLog.txt" , 'r')
+    for line in logFile.readlines():
+        logList.append(line)
     return logList
 
 def downloadImage(url , date, path):
+    if(url.startswith("http://i.imgur.com/")):
+        url = url.replace("http://i.imgur.com/", "")
+    else:
+        url = url.replace("http://imgur.com/", "") + ".jpg"
     connectionToImage = httplib.HTTPConnection("i.imgur.com")
-    connectionToImage.request("GET", url[-1:-12:-1][::-1])
+    print url
+    connectionToImage.request("GET", url)    
     imageResponse = connectionToImage.getresponse()
-    imageData = imageResponse.read()    
+    imageData = imageResponse.read()
+    
     dataWriter = io.FileIO(path + 'wallpaperOfTheDay ' + date + '.jpg', 'w')
     dataWriter.write(imageData)
+    dataWriter.close()
     updateDateFile(date, path)
     print("Downloaded and added to list")
     
 def updateDateFile(date, path):
-    if (os.path.isfile(path + 'wallpaperLog.txt')):
-        logFile = open(path + 'wallpaperLog.txt','a')
-    else:
-        logFile = open(path + 'wallpaperLog.txt', 'w')
-    logFile.write(date)
+    logFile = open(path + 'wallpaperLog.txt','a')
+    logFile.write(date + "\n")
     logFile.close()
 
 def setWallpaperForTheDay(date, path):
